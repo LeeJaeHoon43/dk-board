@@ -1,5 +1,7 @@
 package com.example.dkboard.domain
 
+import com.example.dkboard.exception.PostNotUpdatableException
+import com.example.dkboard.service.dto.PostUpdateRequestDto
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -20,4 +22,13 @@ class Post(
         protected set
     var content: String = content
         protected set
+
+    fun update(postUpdateRequestDto: PostUpdateRequestDto){
+        if(postUpdateRequestDto.updatedBy != this.createdBy){
+            throw PostNotUpdatableException()
+        }
+        this.title = postUpdateRequestDto.title
+        this.content = postUpdateRequestDto.content
+        super.update(postUpdateRequestDto.updatedBy)
+    }
 }

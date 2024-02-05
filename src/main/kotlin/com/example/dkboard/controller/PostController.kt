@@ -1,6 +1,7 @@
 package com.example.dkboard.controller
 
 import com.example.dkboard.controller.dto.*
+import com.example.dkboard.service.PostService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -14,21 +15,23 @@ import org.springframework.web.bind.annotation.RestController
 import java.time.LocalDateTime
 
 @RestController
-class PostController {
+class PostController(
+    private val postService: PostService,
+) {
 
     @PostMapping("/posts")
     fun createPost(
         @RequestBody postCreateRequest: PostCreateRequest,
     ): Long {
-        return 1L
+        return postService.createPost(postCreateRequest.toDto())
     }
 
     @PutMapping("/posts/{id}")
     fun updatePost(
         @PathVariable id: Long,
         @RequestBody postUpdateRequest: PostUpdateRequest,
-    ): Long {
-        return 1L
+    ): Long? {
+        return postService.updatePost(id, postUpdateRequest.toDto())
     }
 
     @DeleteMapping("/posts/{id}")
@@ -36,8 +39,7 @@ class PostController {
         @PathVariable id: Long,
         @RequestParam createdBy: String,
     ): Long {
-        println("createdBy : $createdBy")
-        return id
+        return postService.deletePost(id, createdBy)
     }
 
     @GetMapping("/posts/{id}")
