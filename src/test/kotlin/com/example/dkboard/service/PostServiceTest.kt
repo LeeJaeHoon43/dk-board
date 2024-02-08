@@ -1,9 +1,11 @@
 package com.example.dkboard.service
 
+import com.example.dkboard.domain.Comment
 import com.example.dkboard.domain.Post
 import com.example.dkboard.exception.PostNotDeletableException
 import com.example.dkboard.exception.PostNotFoundException
 import com.example.dkboard.exception.PostNotUpdatableException
+import com.example.dkboard.repository.CommentRepository
 import com.example.dkboard.repository.PostRepository
 import com.example.dkboard.service.dto.PostCreateRequestDto
 import com.example.dkboard.service.dto.PostSearchRequestDto
@@ -22,6 +24,7 @@ import org.springframework.data.repository.findByIdOrNull
 class PostServiceTest(
     private val postSevice: PostService,
     private val postRepository: PostRepository,
+    private val commentRepository: CommentRepository,
 ) : BehaviorSpec({
     beforeSpec {
         postRepository.saveAll(
@@ -46,7 +49,6 @@ class PostServiceTest(
                     title = "제목",
                     content = "내용",
                     createdBy = "wally"
-
                 )
             )
             then("게시글이 정상적으로 생성됨을 확인한다.") {
@@ -139,6 +141,21 @@ class PostServiceTest(
         When("게시글이 없을 때") {
             then("게시글을 찾을 수 없다라는 예외가 발생한다.") {
                 shouldThrow<PostNotFoundException> { postSevice.getPost(9999L) }
+            }
+        }
+        When("댓글 추가시") {
+            commentRepository.save(Comment(content = "댓글 내용1", post = saved, createdBy = "댓글 작성자"))
+            commentRepository.save(Comment(content = "댓글 내용2", post = saved, createdBy = "댓글 작성자"))
+            commentRepository.save(Comment(content = "댓글 내용3", post = saved, createdBy = "댓글 작성자"))
+            val post = postSevice.getPost(saved.id)
+            then("댓글이 함께 조회됨을 확인한다.") {
+                post.comments.size shouldBe 3
+                post.comments[0].content shouldBe "댓글 내용1"
+                post.comments[1].content shouldBe "댓글 내용2"
+                post.comments[2].content shouldBe "댓글 내용3"
+                post.comments[0].createdBy shouldBe "댓글 작성자"
+                post.comments[1].createdBy shouldBe "댓글 작성자"
+                post.comments[2].createdBy shouldBe "댓글 작성자"
             }
         }
     }
