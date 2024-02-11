@@ -21,7 +21,7 @@ class PostService(
     }
 
     @Transactional
-    fun updatePost(id: Long, requestDto: PostUpdateRequestDto): Long? {
+    fun updatePost(id: Long, requestDto: PostUpdateRequestDto): Long {
         val post = postRepository.findByIdOrNull(id) ?: throw PostNotFoundException()
         post.update(requestDto)
         return id
