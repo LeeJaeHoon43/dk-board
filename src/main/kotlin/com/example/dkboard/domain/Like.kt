@@ -14,6 +14,7 @@ class Like(
     val id: Long = 0L
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(foreignKey = ForeignKey(ConstraintMode.NO_CONSTRAINT))
     var post: Post = post
         protected set
 }
