@@ -3,6 +3,7 @@ package com.example.dkboard.service
 import com.example.dkboard.exception.PostNotDeletableException
 import com.example.dkboard.exception.PostNotFoundException
 import com.example.dkboard.repository.PostRepository
+import com.example.dkboard.repository.TagRepository
 import com.example.dkboard.service.dto.*
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional
 class PostService(
     private val postRepository: PostRepository,
     private val likeService: LikeService,
+    private val tagRepository: TagRepository,
 ) {
     @Transactional
     fun createPost(requestDto: PostCreateRequestDto): Long {
@@ -42,6 +44,9 @@ class PostService(
     }
 
     fun findPageBy(pageRequest: Pageable, postSearchRequestDto: PostSearchRequestDto): Page<PostSummaryResponseDto> {
+        postSearchRequestDto.tag?.let {
+            return tagRepository.findPageBy(pageRequest, it).toSummaryResponseDto(likeService::countLike)
+        }
         return postRepository.findPageBy(pageRequest, postSearchRequestDto)
             .toSummaryResponseDto(likeService::countLike)
     }
